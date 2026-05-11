@@ -680,6 +680,51 @@ C. **После блокировки**
 
 :::
 
+### Kali NetHunter
+
+[Kali NetHunter](https://www.kali.org/docs/nethunter/) — платформа для тестирования на проникновение на базе Android, построенная на Kali Linux. Доступны три редакции с различными требованиями:
+
+| Редакция | Требуется Root | Кастомное ядро | Ключевые возможности |
+|---------|:---:|:---:|-------------|
+| NetHunter (Полная) | Да | Да | Атаки USB HID, инъекция WiFi, инструменты Bluetooth, полный chroot |
+| NetHunter Lite | Да | Нет | Среда chroot Kali, ограниченная функциональность USB |
+| NetHunter Rootless | Нет | Нет | Только терминальная среда Kali через Termux |
+
+#### Статус поддержки устройств
+
+| Устройство | SoC | Ядро | NetHunter Полная | Примечания |
+|--------|-----|--------|:-:|-------|
+| Phone (1) | Snapdragon 778G+ | 5.4 | Поддерживается | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + Magisk-модуль [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) от ExTV |
+| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | Недоступно | Исходный код ядра доступен; требуется портирование сообществом |
+| Phone (2a) серия | Dimensity 7200 Pro | 5.15 | Недоступно | Исходный код ядра доступен; см. примечания ниже |
+| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | Недоступно | Исходный код ядра доступен |
+
+:::info Phone (2a) — Особенности сборки ядра
+
+Phone 2a (кодовое имя: Pacman) работает на MediaTek Dimensity 7200 Pro (MT6886) с ядром **Linux 5.15**.  
+[Исходный код ядра](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) находится в открытом доступе, но сборка ядра, совместимого с NetHunter, сопряжена с рядом трудностей:
+
+**Необходимые параметры конфигурации ядра** (в разделе `Device Drivers → USB support → USB Gadget Support`):
+- `CONFIG_USB_CONFIGFS_SERIAL`, `CONFIG_USB_CONFIGFS_ACM`, `CONFIG_USB_CONFIGFS_RNDIS`
+- `CONFIG_USB_CONFIGFS_EEM`, `CONFIG_USB_CONFIGFS_ECM`, `CONFIG_USB_CONFIGFS_NCM`
+- `CONFIG_USB_CONFIGFS_MASS_STORAGE`, `CONFIG_USB_CONFIGFS_F_HID`
+
+**Особенности MediaTek:**
+- Инструменты сборки ядра MediaTek отличаются от Qualcomm; требуется правильная настройка среды сборки MTK
+- Поведение USB gadget configfs может отличаться от реализаций Qualcomm
+- Встроенный WiFi-чипсет (MT7921) нативно не поддерживает режим мониторинга — рекомендуется внешний USB WiFi-адаптер с поддерживаемым чипсетом (например, Alfa AWUS036ACH / RTL8812AU)
+- Разметка загрузчика и разделов отличается от устройств Qualcomm — для изменений ядра прошивайте `init_boot` (не `boot`)
+
+**С чего начать:**
+1. Следуйте [руководству по получению Root](#получение-root-прав) для разблокировки загрузчика и получения root-прав
+2. Ознакомьтесь с документацией Kali по [портированию NetHunter](https://www.kali.org/docs/nethunter/porting-nethunter/) и [сборщику ядер](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)
+3. Используйте официальный [исходный код ядра](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) в качестве базы
+4. Для **NetHunter Lite** (кастомное ядро не требуется): получите root-права на устройстве, установите приложение NetHunter и настройте chroot Kali — атаки USB HID не будут работать, но большинство других инструментов будут доступны
+
+:::
+
+---
+
 ### Каналы обновлений устройств (Telegram)
 
 **Nothing:**

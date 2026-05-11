@@ -155,6 +155,17 @@ keywords: [nothing 專案, glyph 工具, nothing root, nothing magisk, 自訂化
 
 ---
 
+## 安全與滲透測試
+
+與 Nothing 裝置上的安全研究和滲透測試相關的專案。
+
+| 專案 | 開發者 | 說明 |
+|---------|-----------|-------------|
+| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Phone (1) 的自訂核心，支援 NetHunter、Docker 和容器 |
+| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Phone (1) 的 Kali NetHunter Magisk 模組，包含 USB HID 裝置和 chroot 設定 |
+
+---
+
 ## Root 模組
 
 :::warning

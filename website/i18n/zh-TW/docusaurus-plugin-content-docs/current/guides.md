@@ -682,6 +682,51 @@ C. **重新鎖定後**
 
 :::
 
+### Kali NetHunter
+
+[Kali NetHunter](https://www.kali.org/docs/nethunter/) 是基於 Android 的滲透測試平台，建立在 Kali Linux 之上。共有三個版本，具有不同的需求：
+
+| 版本 | 需要 Root | 自訂核心 | 主要功能 |
+|---------|:---:|:---:|-------------|
+| NetHunter（完整版） | 是 | 是 | USB HID 攻擊、WiFi 注入、藍牙工具、完整 chroot |
+| NetHunter Lite | 是 | 否 | Kali chroot 環境、有限的 USB 功能 |
+| NetHunter Rootless | 否 | 否 | 透過 Termux 的純終端 Kali 環境 |
+
+#### 裝置支援狀態
+
+| 裝置 | SoC | 核心 | NetHunter 完整版 | 備註 |
+|--------|-----|--------|:-:|-------|
+| Phone (1) | Snapdragon 778G+ | 5.4 | 已支援 | ExTV 的 [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magisk 模組 |
+| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | 未提供 | 核心原始碼已公開；需要社群移植 |
+| Phone (2a) 系列 | Dimensity 7200 Pro | 5.15 | 未提供 | 核心原始碼已公開；請參閱以下備註 |
+| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | 未提供 | 核心原始碼已公開 |
+
+:::info Phone (2a) — 核心編譯注意事項
+
+Phone 2a（代號：Pacman）使用 MediaTek Dimensity 7200 Pro（MT6886），運行 **Linux 5.15** 核心。  
+[核心原始碼](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)已公開，但編譯 NetHunter 相容核心涉及以下挑戰：
+
+**必要的核心設定選項**（位於 `Device Drivers → USB support → USB Gadget Support`）：
+- `CONFIG_USB_CONFIGFS_SERIAL`、`CONFIG_USB_CONFIGFS_ACM`、`CONFIG_USB_CONFIGFS_RNDIS`
+- `CONFIG_USB_CONFIGFS_EEM`、`CONFIG_USB_CONFIGFS_ECM`、`CONFIG_USB_CONFIGFS_NCM`
+- `CONFIG_USB_CONFIGFS_MASS_STORAGE`、`CONFIG_USB_CONFIGFS_F_HID`
+
+**MediaTek 特有的挑戰：**
+- MediaTek 核心編譯工具鏈與 Qualcomm 不同；需要正確設定 MTK 編譯環境
+- USB gadget configfs 的行為可能與 Qualcomm 實作有所不同
+- 內建 WiFi 晶片組（MT7921）原生不支援監控模式 — 建議使用支援的外接 USB WiFi 轉接器（例如：Alfa AWUS036ACH / RTL8812AU）
+- 引導載入程式和分割區配置與 Qualcomm 裝置不同 — 核心變更時請刷入 `init_boot`（非 `boot`）
+
+**開始步驟：**
+1. 按照 [Root 指南](#取得-root-權限) 設定解鎖的引導載入程式和 Root 權限
+2. 參考 Kali 的 [NetHunter 移植](https://www.kali.org/docs/nethunter/porting-nethunter/)和[核心建構器](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)文件
+3. 使用官方[核心原始碼](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)作為基礎
+4. 若使用 **NetHunter Lite**（不需要自訂核心）：Root 裝置、安裝 NetHunter 應用程式並設定 Kali chroot — USB HID 攻擊無法使用，但大多數其他工具可正常運作
+
+:::
+
+---
+
 ### 裝置更新頻道 (Telegram)
 
 **Nothing:**

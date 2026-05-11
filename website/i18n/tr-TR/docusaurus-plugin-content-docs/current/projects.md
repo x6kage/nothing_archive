@@ -155,6 +155,17 @@ Topluluktan çeşitli eğlenceli ve deneysel projeler.
 
 ---
 
+## Güvenlik ve Sızma Testi
+
+Nothing cihazlarında güvenlik araştırması ve sızma testiyle ilgili projeler.
+
+| Proje | Geliştirici | Açıklama |
+|---------|-----------|-------------|
+| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Phone (1) için NetHunter, Docker ve konteyner desteği içeren özel kernel |
+| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Phone (1) için USB HID gadget ve chroot kurulumu içeren Kali NetHunter Magisk modülü |
+
+---
+
 ## Root Modülleri
 
 :::warning

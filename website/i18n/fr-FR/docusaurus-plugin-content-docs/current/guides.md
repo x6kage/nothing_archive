@@ -681,6 +681,51 @@ Restez à jour avec les ROMs personnalisées, les noyaux et les projets de déve
 
 :::
 
+### Kali NetHunter
+
+[Kali NetHunter](https://www.kali.org/docs/nethunter/) est une plateforme de test d'intrusion basée sur Android, construite sur Kali Linux. Il existe trois éditions avec des exigences différentes :
+
+| Édition | Root requis | Kernel personnalisé | Fonctionnalités clés |
+|---------|:---:|:---:|-------------|
+| NetHunter (Complet) | Oui | Oui | Attaques USB HID, injection WiFi, outils Bluetooth, chroot complet |
+| NetHunter Lite | Oui | Non | Environnement chroot Kali, fonctionnalité USB limitée |
+| NetHunter Rootless | Non | Non | Environnement Kali en terminal uniquement via Termux |
+
+#### État du support des appareils
+
+| Appareil | SoC | Kernel | NetHunter Complet | Notes |
+|--------|-----|--------|:-:|-------|
+| Phone (1) | Snapdragon 778G+ | 5.4 | Supporté | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + module Magisk [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) par ExTV |
+| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | Non disponible | Source kernel disponible ; portage communautaire nécessaire |
+| Phone (2a) Série | Dimensity 7200 Pro | 5.15 | Non disponible | Source kernel disponible ; voir les notes ci-dessous |
+| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | Non disponible | Source kernel disponible |
+
+:::info Phone (2a) — Considérations pour la compilation du kernel
+
+Le Phone 2a (nom de code : Pacman) fonctionne avec un MediaTek Dimensity 7200 Pro (MT6886) et un kernel **Linux 5.15**.  
+Le [code source du kernel](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) est disponible publiquement, mais la compilation d'un kernel compatible NetHunter implique plusieurs défis :
+
+**Options de configuration kernel requises** (sous `Device Drivers → USB support → USB Gadget Support`) :
+- `CONFIG_USB_CONFIGFS_SERIAL`, `CONFIG_USB_CONFIGFS_ACM`, `CONFIG_USB_CONFIGFS_RNDIS`
+- `CONFIG_USB_CONFIGFS_EEM`, `CONFIG_USB_CONFIGFS_ECM`, `CONFIG_USB_CONFIGFS_NCM`
+- `CONFIG_USB_CONFIGFS_MASS_STORAGE`, `CONFIG_USB_CONFIGFS_F_HID`
+
+**Défis spécifiques à MediaTek :**
+- Les chaînes d'outils de compilation kernel MediaTek diffèrent de Qualcomm ; nécessite une configuration appropriée de l'environnement de build MTK
+- Le comportement de USB gadget configfs peut différer des implémentations Qualcomm
+- Le chipset WiFi interne (MT7921) ne supporte pas nativement le mode moniteur — un adaptateur WiFi USB externe avec un chipset supporté (ex. : Alfa AWUS036ACH / RTL8812AU) est recommandé
+- L'agencement du bootloader et des partitions diffère des appareils Qualcomm — flasher `init_boot` (et non `boot`) pour les modifications du kernel
+
+**Pour commencer :**
+1. Suivez le [guide de rootage](#rootage) pour configurer un bootloader déverrouillé et le root
+2. Consultez la documentation de Kali sur le [portage de NetHunter](https://www.kali.org/docs/nethunter/porting-nethunter/) et le [kernel builder](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)
+3. Utilisez le [code source officiel du kernel](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) comme base
+4. Pour **NetHunter Lite** (pas de kernel personnalisé nécessaire) : rooter l'appareil, installer l'app NetHunter et configurer le chroot Kali — les attaques USB HID ne fonctionneront pas mais la plupart des autres outils seront disponibles
+
+:::
+
+---
+
 ### Canaux de mise à jour des appareils (Telegram)
 
 **Nothing :**

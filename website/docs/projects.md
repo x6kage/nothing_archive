@@ -155,6 +155,17 @@ Miscellaneous fun and experimental projects from the community.
 
 ---
 
+## Security & Pentesting
+
+Projects related to security research and penetration testing on Nothing devices.
+
+| Project | Developer | Description |
+|---------|-----------|-------------|
+| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Custom kernel for Phone (1) with NetHunter, Docker, and container support |
+| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Kali NetHunter Magisk module for Phone (1) with USB HID gadget and chroot setup |
+
+---
+
 ## Root Modules
 
 :::warning
