@@ -689,12 +689,23 @@ Stay updated with custom ROMs, kernels, and development projects.
 
 #### Device Support Status
 
-| Device | SoC | Arch | Kernel | NetHunter Pro | Notes |
-|--------|-----|------|--------|:-:|-------|
-| Phone (1) | Snapdragon 778G+ | arm64 | 5.4 | Supported | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magisk module by ExTV |
-| Phone (2) | Snapdragon 8+ Gen 1 | arm64 | 5.10 | Not available | Kernel source available; community port needed |
-| Phone (2a) Series | Dimensity 7200 Pro (MT6886) | arm64 (ARMv9) | 5.15 | Not available | Kernel source available; see notes below |
-| Phone (3) | Snapdragon 7s Gen 3 | arm64 | 6.6 | Not available | Kernel source available |
+| Device | SoC | WiFi Chip | Driver | Kernel | Monitor Mode | Notes |
+|--------|-----|-----------|--------|--------|:---:|-------|
+| Phone (1) | Snapdragon 778G+ | WCN6750 | ath11k | 5.4 | Supported | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) by ExTV |
+| Phone (2) | Snapdragon 8+ Gen 1 | WCN6855 | ath11k | 5.10 | Blocked | `supports_monitor = false` in ath11k; firmware limitation |
+| Phone (2a) Series | Dimensity 7200 Pro | MT6655 (Connac3) | gen4m | 5.15 | Experimental | Sniffer code exists but disabled for MT6655; [details below](#phone-2a--custom-kernel-build-for-nethunter-pro) |
+| Phone (3a) / (3a) Pro | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | Blocked | `supports_monitor = false` in ath11k; firmware limitation |
+| Phone (3) | Snapdragon 8s Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | Patchable | `supports_monitor = false` in stock kernel, but upstream ath12k [added WCN7850 monitor mode](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html) (Apr 2025); backport needed |
+| Phone (4a) | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | Blocked | Same as Phone (3a); `supports_monitor = false` |
+| Phone (4a) Pro | Snapdragon 7 Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | Patchable | Same WCN7850 as Phone (3); upstream monitor mode patches can be backported |
+
+:::tip Best candidates for internal WiFi monitor mode
+
+**Phone (3) and Phone (4a) Pro** use the WCN7850 (FastConnect 7800, WiFi 7) chip with the ath12k driver. Upstream Linux added monitor mode support for WCN7850 in [April 2025](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html) (13-patch series). The stock NothingOSS kernel has `supports_monitor = false`, but these patches can be backported to the kernel 6.6 tree. This is the most promising path for internal WiFi monitor mode on a Nothing device.
+
+Devices with **WCN6750/WCN6855** (Phone 2, 3a, 4a) are blocked by a firmware limitation — the ath11k driver explicitly disables monitor mode for these chips, and no upstream workaround exists.
+
+:::
 
 :::info Phone (2a) — Custom Kernel Build for NetHunter Pro
 

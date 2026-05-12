@@ -686,12 +686,23 @@ C. **再ロック後**
 
 #### デバイスサポート状況
 
-| デバイス | SoC | アーキテクチャ | カーネル | NetHunter Pro | 備考 |
-|--------|-----|------|--------|:-:|-------|
-| Phone (1) | Snapdragon 778G+ | arm64 | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magiskモジュール |
-| Phone (2) | Snapdragon 8+ Gen 1 | arm64 | 5.10 | 未対応 | カーネルソースは公開済み。コミュニティによる移植が必要 |
-| Phone (2a)シリーズ | Dimensity 7200 Pro (MT6886) | arm64 (ARMv9) | 5.15 | 未対応 | カーネルソースは公開済み。以下の注意事項を参照 |
-| Phone (3) | Snapdragon 7s Gen 3 | arm64 | 6.6 | 未対応 | カーネルソースは公開済み |
+| デバイス | SoC | WiFiチップ | ドライバー | カーネル | モニターモード | 備考 |
+|--------|-----|-----------|--------|--------|:---:|-------|
+| Phone (1) | Snapdragon 778G+ | WCN6750 | ath11k | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) |
+| Phone (2) | Snapdragon 8+ Gen 1 | WCN6855 | ath11k | 5.10 | 不可 | ath11kで`supports_monitor = false`; ファームウェア制限 |
+| Phone (2a)シリーズ | Dimensity 7200 Pro | MT6655 (Connac3) | gen4m | 5.15 | 実験的 | スニファーコードは存在するがMT6655では無効; [詳細は下記](#phone-2a--nethunter-pro用カスタムカーネルビルド) |
+| Phone (3a) / (3a) Pro | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | 不可 | ath11kで`supports_monitor = false`; ファームウェア制限 |
+| Phone (3) | Snapdragon 8s Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | パッチ適用可 | ストックカーネルでは`supports_monitor = false`だが、upstream ath12kに[WCN7850モニターモード追加済み](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html)（2025年4月）; バックポートが必要 |
+| Phone (4a) | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | 不可 | Phone (3a)と同様; `supports_monitor = false` |
+| Phone (4a) Pro | Snapdragon 7 Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | パッチ適用可 | Phone (3)と同じWCN7850; upstreamモニターモードパッチのバックポート可能 |
+
+:::tip 内蔵WiFiモニターモードの最有力候補
+
+**Phone (3) と Phone (4a) Pro** はWCN7850（FastConnect 7800、WiFi 7）チップをath12kドライバーで使用。Upstream Linuxが[2025年4月](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html)にWCN7850のモニターモードサポートを追加（13パッチシリーズ）。NothingOSSストックカーネルでは`supports_monitor = false`だが、これらのパッチをkernel 6.6ツリーにバックポート可能。Nothingデバイスにおける内蔵WiFiモニターモードの最も有望なルート。
+
+**WCN6750/WCN6855**搭載デバイス（Phone 2、3a、4a）はファームウェア制限によりブロックされている — ath11kドライバーがこれらのチップのモニターモードを明示的に無効化しており、upstreamの回避策は存在しない。
+
+:::
 
 :::info Phone (2a) — NetHunter Pro用カスタムカーネルビルド
 
