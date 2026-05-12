@@ -155,6 +155,17 @@ Wiki、ファームウェアアーカイブ、システム修復ツールを含�
 
 ---
 
+## セキュリティとペネトレーションテスト
+
+Nothingデバイスにおけるセキュリティリサーチおよびペネトレーションテストに関連するプロジェクト。
+
+| プロジェクト | 開発者 | 説明 |
+|---------|-----------|-------------|
+| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Phone (1) 用カスタムカーネル。NetHunter、Docker、コンテナサポートを搭載 |
+| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Phone (1) 用Kali NetHunter Magiskモジュール。USB HIDガジェットとchroot設定を含む |
+
+---
+
 ## Rootモジュール
 
 :::warning

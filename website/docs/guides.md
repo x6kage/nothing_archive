@@ -683,6 +683,68 @@ Stay updated with custom ROMs, kernels, and development projects.
 
 :::
 
+### Kali NetHunter
+
+[Kali NetHunter](https://www.kali.org/docs/nethunter/) is an Android-based penetration testing platform built on top of Kali Linux. The full edition (**NetHunter Pro**) requires a custom kernel and root access, enabling USB HID attacks, WiFi monitor mode / injection, Bluetooth tools, and a full Kali chroot environment.
+
+#### Device Support Status
+
+| Device | SoC | WiFi Chip | Driver | Kernel | Monitor Mode | Notes |
+|--------|-----|-----------|--------|--------|:---:|-------|
+| Phone (1) | Snapdragon 778G+ | WCN6750 | ath11k | 5.4 | Supported | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) by ExTV |
+| Phone (2) | Snapdragon 8+ Gen 1 | WCN6855 | ath11k | 5.10 | Blocked | `supports_monitor = false` in ath11k; firmware limitation |
+| Phone (2a) Series | Dimensity 7200 Pro | MT6655 (Connac3) | gen4m | 5.15 | Experimental | Sniffer code exists but disabled for MT6655; [details below](#phone-2a--custom-kernel-build-for-nethunter-pro) |
+| Phone (3a) / (3a) Pro | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | Blocked | `supports_monitor = false` in ath11k; firmware limitation |
+| Phone (3) | Snapdragon 8s Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | Patchable | `supports_monitor = false` in stock kernel, but upstream ath12k [added WCN7850 monitor mode](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html) (Apr 2025); backport needed |
+| Phone (4a) | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | Blocked | Same as Phone (3a); `supports_monitor = false` |
+| Phone (4a) Pro | Snapdragon 7 Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | Patchable | Same WCN7850 as Phone (3); upstream monitor mode patches can be backported |
+
+:::tip Best candidates for internal WiFi monitor mode
+
+**Phone (3) and Phone (4a) Pro** use the WCN7850 (FastConnect 7800, WiFi 7) chip with the ath12k driver. Upstream Linux added monitor mode support for WCN7850 in [April 2025](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html) (13-patch series). The stock NothingOSS kernel has `supports_monitor = false`, but these patches can be backported to the kernel 6.6 tree. This is the most promising path for internal WiFi monitor mode on a Nothing device.
+
+Devices with **WCN6750/WCN6855** (Phone 2, 3a, 4a) are blocked by a firmware limitation — the ath11k driver explicitly disables monitor mode for these chips, and no upstream workaround exists.
+
+:::
+
+:::info Phone (2a) — Custom Kernel Build for NetHunter Pro
+
+The Phone 2a (codename: Pacman) runs on MediaTek Dimensity 7200 Pro (MT6886) — **arm64 / aarch64 (ARMv9.0-A)** architecture with 2x Cortex-A715 + 6x Cortex-A510 cores, Linux 5.15 kernel.  
+Use the **arm64** chroot for the NetHunter rootfs. The [kernel source](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) is publicly available, but building a NetHunter Pro kernel for this device is non-trivial:
+
+**Required kernel config options** (under `Device Drivers → USB support → USB Gadget Support`):
+- `CONFIG_USB_CONFIGFS_SERIAL`, `CONFIG_USB_CONFIGFS_ACM`, `CONFIG_USB_CONFIGFS_RNDIS`
+- `CONFIG_USB_CONFIGFS_EEM`, `CONFIG_USB_CONFIGFS_ECM`, `CONFIG_USB_CONFIGFS_NCM`
+- `CONFIG_USB_CONFIGFS_MASS_STORAGE`, `CONFIG_USB_CONFIGFS_F_HID`
+
+**Internal WiFi — monitor mode potential:**
+- The WiFi chip is **MT6655** (Connac3, Wi-Fi 6E 2T2R), driven by MediaTek's vendor **gen4m** driver (not the upstream mt76 driver)
+- The gen4m driver source includes `radiotap.c` / `radiotap.h` and sniffer support code gated behind `CFG_SUPPORT_SNIFFER_RADIOTAP`
+- In the stock Makefile, sniffer/radiotap is **only enabled for MT6985** (`CONFIG_SNIFFER_RADIOTAP=y` under `CONFIG_WLAN_MT6985_MP2`). It is **not enabled for MT6655/MT6886 by default**
+- To attempt internal WiFi monitor mode: force `CONFIG_SNIFFER_RADIOTAP=y` in the gen4m Makefile for the MT6655 build path and rebuild the `wlan_drv_gen4m.ko` module. This enables the firmware sniffer command (`MCU_UNI_CMD_SNIFFER`) and radiotap header injection into captured frames
+- Whether the MT6655 firmware actually supports sniffer mode is unconfirmed — the driver code path exists but firmware-side support may be gated or absent. Packet injection (TX in monitor mode) is unlikely to work without further firmware reverse engineering
+- **Fallback:** If internal WiFi monitor mode fails, an external USB WiFi adapter (e.g., Alfa AWUS036ACH with `rtl8812au` driver cross-compiled against the MTK kernel tree) remains the proven path
+
+**MediaTek kernel build challenges:**
+- MediaTek kernel build toolchains differ significantly from Qualcomm; requires proper MTK cross-compilation environment setup and familiarity with MTK kernel tree structure
+- The WLAN driver is built as a separate kernel module (`wlan_drv_gen4m.ko`) from the [kernel modules repo](https://github.com/NothingOSS/android_kernel_modules_nothing_mt6886) — not compiled into the kernel itself
+- USB gadget configfs behavior may differ from Qualcomm implementations — extra debugging likely needed to get HID gadget working reliably
+- Bootloader and partition layout differ from Qualcomm devices — flash `init_boot` (not `boot`) for kernel changes
+
+**Installation image:** Since there is no device-specific build, use **NetHunter Pro Generic arm64** from the [official NetHunter download page](https://www.kali.org/get-kali/#kali-mobile).
+
+**Steps to build a NetHunter Pro kernel:**
+1. Follow the [Rooting guide](#rooting) to set up an unlocked bootloader and root
+2. Clone the [kernel source](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) and set up the MTK build environment
+3. Apply [NetHunter kernel patches](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels) — enable all USB ConfigFS gadget options listed above
+4. Add external WiFi driver modules (e.g., [aircrack-ng/rtl8812au](https://github.com/aircrack-ng/rtl8812au)) to the kernel tree
+5. Refer to Kali's [Porting NetHunter](https://www.kali.org/docs/nethunter/porting-nethunter/) and [kernel builder](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/) documentation
+6. Build, flash the patched `init_boot.img`, and install via the Generic arm64 installer from [nethunter project](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)
+
+:::
+
+---
+
 ### Device Update Channels (Telegram)
 
 **Nothing:**

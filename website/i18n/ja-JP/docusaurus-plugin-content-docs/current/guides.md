@@ -680,6 +680,68 @@ C. **再ロック後**
 
 :::
 
+### Kali NetHunter
+
+[Kali NetHunter](https://www.kali.org/docs/nethunter/)は、Kali Linuxをベースに構築されたAndroid向けペネトレーションテストプラットフォームです。フルエディション（**NetHunter Pro**）はカスタムカーネルとRoot権限が必要で、USB HID攻撃、WiFiモニターモード/インジェクション、Bluetoothツール、フルKali chroot環境が利用可能になります。
+
+#### デバイスサポート状況
+
+| デバイス | SoC | WiFiチップ | ドライバー | カーネル | モニターモード | 備考 |
+|--------|-----|-----------|--------|--------|:---:|-------|
+| Phone (1) | Snapdragon 778G+ | WCN6750 | ath11k | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) |
+| Phone (2) | Snapdragon 8+ Gen 1 | WCN6855 | ath11k | 5.10 | 不可 | ath11kで`supports_monitor = false`; ファームウェア制限 |
+| Phone (2a)シリーズ | Dimensity 7200 Pro | MT6655 (Connac3) | gen4m | 5.15 | 実験的 | スニファーコードは存在するがMT6655では無効; [詳細は下記](#phone-2a--nethunter-pro用カスタムカーネルビルド) |
+| Phone (3a) / (3a) Pro | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | 不可 | ath11kで`supports_monitor = false`; ファームウェア制限 |
+| Phone (3) | Snapdragon 8s Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | パッチ適用可 | ストックカーネルでは`supports_monitor = false`だが、upstream ath12kに[WCN7850モニターモード追加済み](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html)（2025年4月）; バックポートが必要 |
+| Phone (4a) | Snapdragon 7s Gen 3 | WCN6750 | ath11k | 6.1 | 不可 | Phone (3a)と同様; `supports_monitor = false` |
+| Phone (4a) Pro | Snapdragon 7 Gen 4 | WCN7850 (FC 7800) | ath12k | 6.6 | パッチ適用可 | Phone (3)と同じWCN7850; upstreamモニターモードパッチのバックポート可能 |
+
+:::tip 内蔵WiFiモニターモードの最有力候補
+
+**Phone (3) と Phone (4a) Pro** はWCN7850（FastConnect 7800、WiFi 7）チップをath12kドライバーで使用。Upstream Linuxが[2025年4月](http://lists.infradead.org/pipermail/ath12k/2025-April/006757.html)にWCN7850のモニターモードサポートを追加（13パッチシリーズ）。NothingOSSストックカーネルでは`supports_monitor = false`だが、これらのパッチをkernel 6.6ツリーにバックポート可能。Nothingデバイスにおける内蔵WiFiモニターモードの最も有望なルート。
+
+**WCN6750/WCN6855**搭載デバイス（Phone 2、3a、4a）はファームウェア制限によりブロックされている — ath11kドライバーがこれらのチップのモニターモードを明示的に無効化しており、upstreamの回避策は存在しない。
+
+:::
+
+:::info Phone (2a) — NetHunter Pro用カスタムカーネルビルド
+
+Phone 2a（コードネーム：Pacman）はMediaTek Dimensity 7200 Pro（MT6886）を搭載 — **arm64 / aarch64（ARMv9.0-A）** アーキテクチャ、2x Cortex-A715 + 6x Cortex-A510コア構成、Linux 5.15カーネル。  
+NetHunter rootfsのchrootには **arm64** を選択すること。[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)は公開されていますが、このデバイス向けのNetHunter Proカーネルのビルドは容易ではありません：
+
+**必要なカーネル設定オプション**（`Device Drivers → USB support → USB Gadget Support`配下）：
+- `CONFIG_USB_CONFIGFS_SERIAL`、`CONFIG_USB_CONFIGFS_ACM`、`CONFIG_USB_CONFIGFS_RNDIS`
+- `CONFIG_USB_CONFIGFS_EEM`、`CONFIG_USB_CONFIGFS_ECM`、`CONFIG_USB_CONFIGFS_NCM`
+- `CONFIG_USB_CONFIGFS_MASS_STORAGE`、`CONFIG_USB_CONFIGFS_F_HID`
+
+**内蔵WiFi — モニターモードの可能性：**
+- WiFiチップは **MT6655**（Connac3、Wi-Fi 6E 2T2R）、MediaTekのベンダー製 **gen4m** ドライバーで駆動（upstreamのmt76ドライバーではない）
+- gen4mドライバーソースには `radiotap.c` / `radiotap.h` およびスニファーサポートコードが含まれており、`CFG_SUPPORT_SNIFFER_RADIOTAP` で制御されている
+- 標準のMakefileでは、スニファー/radiotapは **MT6985でのみ有効**（`CONFIG_WLAN_MT6985_MP2` 配下の `CONFIG_SNIFFER_RADIOTAP=y`）。**MT6655/MT6886ではデフォルト無効**
+- 内蔵WiFiモニターモードを試みるには：gen4m MakefileのMT6655ビルドパスで `CONFIG_SNIFFER_RADIOTAP=y` を強制的に有効にし、`wlan_drv_gen4m.ko` モジュールをリビルドする。これにより、ファームウェアスニファーコマンド（`MCU_UNI_CMD_SNIFFER`）が有効になり、キャプチャしたフレームにradiotapヘッダーが付加される
+- MT6655ファームウェアが実際にスニファーモードをサポートしているかは未確認 — ドライバー側のコードパスは存在するが、ファームウェア側のサポートが制限されているか存在しない可能性がある。パケットインジェクション（モニターモードでのTX）は、ファームウェアのリバースエンジニアリングなしには動作しない可能性が高い
+- **フォールバック：** 内蔵WiFiモニターモードが機能しない場合、外付けUSB WiFiアダプター（例：Alfa AWUS036ACH + MTKカーネルツリーに対してクロスコンパイルした `rtl8812au` ドライバー）が実績のある方法
+
+**MediaTekカーネルビルドの課題：**
+- MediaTekのカーネルビルドツールチェーンはQualcommと大きく異なり、適切なMTKクロスコンパイル環境のセットアップとMTKカーネルツリー構造への理解が必要
+- WLANドライバーはカーネル本体ではなく、[カーネルモジュールリポ](https://github.com/NothingOSS/android_kernel_modules_nothing_mt6886)から別のカーネルモジュール（`wlan_drv_gen4m.ko`）としてビルドされる
+- USB gadget configfsの動作がQualcomm実装と異なる場合がある — HIDガジェットを安定動作させるために追加のデバッグが必要になる可能性が高い
+- ブートローダーとパーティションレイアウトがQualcommデバイスと異なる — カーネル変更時は`boot`ではなく`init_boot`をフラッシュ
+
+**インストールイメージ：** デバイス専用ビルドは存在しないため、[公式NetHunterダウンロードページ](https://www.kali.org/get-kali/#kali-mobile)から **NetHunter Pro Generic arm64** を使用する。
+
+**NetHunter Proカーネルのビルド手順：**
+1. [ルート化ガイド](#ルート化)に従って、ブートローダーのアンロックとルート化を設定
+2. [カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)をクローンし、MTKビルド環境を構築
+3. [NetHunterカーネルパッチ](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels)を適用 — 上記のUSB ConfigFSガジェットオプションをすべて有効化
+4. 外付けWiFiドライバーモジュール（例：[aircrack-ng/rtl8812au](https://github.com/aircrack-ng/rtl8812au)）をカーネルツリーに追加
+5. Kaliの[NetHunterの移植](https://www.kali.org/docs/nethunter/porting-nethunter/)および[カーネルビルダー](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)のドキュメントを参照
+6. ビルド後、パッチ済みの`init_boot.img`をフラッシュし、[NetHunterプロジェクト](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)のGeneric arm64インストーラー経由でインストール
+
+:::
+
+---
+
 ### デバイスアップデートチャンネル (Telegram)
 
 **Nothing:**
