@@ -703,12 +703,19 @@ NetHunter rootfsのchrootには **arm64** を選択すること。[カーネル�
 - `CONFIG_USB_CONFIGFS_EEM`、`CONFIG_USB_CONFIGFS_ECM`、`CONFIG_USB_CONFIGFS_NCM`
 - `CONFIG_USB_CONFIGFS_MASS_STORAGE`、`CONFIG_USB_CONFIGFS_F_HID`
 
-**MediaTek固有の課題：**
+**内蔵WiFi — モニターモードの可能性：**
+- WiFiチップは **MT6655**（Connac3、Wi-Fi 6E 2T2R）、MediaTekのベンダー製 **gen4m** ドライバーで駆動（upstreamのmt76ドライバーではない）
+- gen4mドライバーソースには `radiotap.c` / `radiotap.h` およびスニファーサポートコードが含まれており、`CFG_SUPPORT_SNIFFER_RADIOTAP` で制御されている
+- 標準のMakefileでは、スニファー/radiotapは **MT6985でのみ有効**（`CONFIG_WLAN_MT6985_MP2` 配下の `CONFIG_SNIFFER_RADIOTAP=y`）。**MT6655/MT6886ではデフォルト無効**
+- 内蔵WiFiモニターモードを試みるには：gen4m MakefileのMT6655ビルドパスで `CONFIG_SNIFFER_RADIOTAP=y` を強制的に有効にし、`wlan_drv_gen4m.ko` モジュールをリビルドする。これにより、ファームウェアスニファーコマンド（`MCU_UNI_CMD_SNIFFER`）が有効になり、キャプチャしたフレームにradiotapヘッダーが付加される
+- MT6655ファームウェアが実際にスニファーモードをサポートしているかは未確認 — ドライバー側のコードパスは存在するが、ファームウェア側のサポートが制限されているか存在しない可能性がある。パケットインジェクション（モニターモードでのTX）は、ファームウェアのリバースエンジニアリングなしには動作しない可能性が高い
+- **フォールバック：** 内蔵WiFiモニターモードが機能しない場合、外付けUSB WiFiアダプター（例：Alfa AWUS036ACH + MTKカーネルツリーに対してクロスコンパイルした `rtl8812au` ドライバー）が実績のある方法
+
+**MediaTekカーネルビルドの課題：**
 - MediaTekのカーネルビルドツールチェーンはQualcommと大きく異なり、適切なMTKクロスコンパイル環境のセットアップとMTKカーネルツリー構造への理解が必要
+- WLANドライバーはカーネル本体ではなく、[カーネルモジュールリポ](https://github.com/NothingOSS/android_kernel_modules_nothing_mt6886)から別のカーネルモジュール（`wlan_drv_gen4m.ko`）としてビルドされる
 - USB gadget configfsの動作がQualcomm実装と異なる場合がある — HIDガジェットを安定動作させるために追加のデバッグが必要になる可能性が高い
-- 内蔵WiFiチップセット（MT7921）はモニターモードやパケットインジェクションに対応していない — ワイヤレス攻撃には対応チップセットを搭載した外付けUSB WiFiアダプター（例：Alfa AWUS036ACH / RTL8812AU）が必須
 - ブートローダーとパーティションレイアウトがQualcommデバイスと異なる — カーネル変更時は`boot`ではなく`init_boot`をフラッシュ
-- WiFiインジェクションドライバーパッチ（例：`rtl8812au`）はMTKカーネルツリーに対してクロスコンパイルする必要がある
 
 **インストールイメージ：** デバイス専用ビルドは存在しないため、[公式NetHunterダウンロードページ](https://www.kali.org/get-kali/#kali-mobile)から **NetHunter Pro Generic arm64** を使用する。
 

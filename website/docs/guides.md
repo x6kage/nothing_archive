@@ -706,12 +706,19 @@ Use the **arm64** chroot for the NetHunter rootfs. The [kernel source](https://g
 - `CONFIG_USB_CONFIGFS_EEM`, `CONFIG_USB_CONFIGFS_ECM`, `CONFIG_USB_CONFIGFS_NCM`
 - `CONFIG_USB_CONFIGFS_MASS_STORAGE`, `CONFIG_USB_CONFIGFS_F_HID`
 
-**MediaTek-specific challenges:**
+**Internal WiFi — monitor mode potential:**
+- The WiFi chip is **MT6655** (Connac3, Wi-Fi 6E 2T2R), driven by MediaTek's vendor **gen4m** driver (not the upstream mt76 driver)
+- The gen4m driver source includes `radiotap.c` / `radiotap.h` and sniffer support code gated behind `CFG_SUPPORT_SNIFFER_RADIOTAP`
+- In the stock Makefile, sniffer/radiotap is **only enabled for MT6985** (`CONFIG_SNIFFER_RADIOTAP=y` under `CONFIG_WLAN_MT6985_MP2`). It is **not enabled for MT6655/MT6886 by default**
+- To attempt internal WiFi monitor mode: force `CONFIG_SNIFFER_RADIOTAP=y` in the gen4m Makefile for the MT6655 build path and rebuild the `wlan_drv_gen4m.ko` module. This enables the firmware sniffer command (`MCU_UNI_CMD_SNIFFER`) and radiotap header injection into captured frames
+- Whether the MT6655 firmware actually supports sniffer mode is unconfirmed — the driver code path exists but firmware-side support may be gated or absent. Packet injection (TX in monitor mode) is unlikely to work without further firmware reverse engineering
+- **Fallback:** If internal WiFi monitor mode fails, an external USB WiFi adapter (e.g., Alfa AWUS036ACH with `rtl8812au` driver cross-compiled against the MTK kernel tree) remains the proven path
+
+**MediaTek kernel build challenges:**
 - MediaTek kernel build toolchains differ significantly from Qualcomm; requires proper MTK cross-compilation environment setup and familiarity with MTK kernel tree structure
+- The WLAN driver is built as a separate kernel module (`wlan_drv_gen4m.ko`) from the [kernel modules repo](https://github.com/NothingOSS/android_kernel_modules_nothing_mt6886) — not compiled into the kernel itself
 - USB gadget configfs behavior may differ from Qualcomm implementations — extra debugging likely needed to get HID gadget working reliably
-- Internal WiFi chipset (MT7921) does not support monitor mode or packet injection — an external USB WiFi adapter with supported chipset (e.g., Alfa AWUS036ACH / RTL8812AU) is required for wireless attacks
 - Bootloader and partition layout differ from Qualcomm devices — flash `init_boot` (not `boot`) for kernel changes
-- WiFi injection driver patches (e.g., `rtl8812au`) must be cross-compiled against the MTK kernel tree
 
 **Installation image:** Since there is no device-specific build, use **NetHunter Pro Generic arm64** from the [official NetHunter download page](https://www.kali.org/get-kali/#kali-mobile).
 
