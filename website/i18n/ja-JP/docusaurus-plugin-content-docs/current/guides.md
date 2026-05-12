@@ -710,13 +710,15 @@ NetHunter rootfsのchrootには **arm64** を選択すること。[カーネル�
 - ブートローダーとパーティションレイアウトがQualcommデバイスと異なる — カーネル変更時は`boot`ではなく`init_boot`をフラッシュ
 - WiFiインジェクションドライバーパッチ（例：`rtl8812au`）はMTKカーネルツリーに対してクロスコンパイルする必要がある
 
+**インストールイメージ：** デバイス専用ビルドは存在しないため、[公式NetHunterダウンロードページ](https://www.kali.org/get-kali/#kali-mobile)から **NetHunter Pro Generic arm64** を使用する。
+
 **NetHunter Proカーネルのビルド手順：**
 1. [ルート化ガイド](#ルート化)に従って、ブートローダーのアンロックとルート化を設定
 2. [カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)をクローンし、MTKビルド環境を構築
 3. [NetHunterカーネルパッチ](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels)を適用 — 上記のUSB ConfigFSガジェットオプションをすべて有効化
 4. 外付けWiFiドライバーモジュール（例：[aircrack-ng/rtl8812au](https://github.com/aircrack-ng/rtl8812au)）をカーネルツリーに追加
 5. Kaliの[NetHunterの移植](https://www.kali.org/docs/nethunter/porting-nethunter/)および[カーネルビルダー](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)のドキュメントを参照
-6. ビルド後、パッチ済みの`init_boot.img`をフラッシュし、[NetHunterインストーラー](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)経由でNetHunterアプリ + chrootをインストール
+6. ビルド後、パッチ済みの`init_boot.img`をフラッシュし、[NetHunterプロジェクト](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)のGeneric arm64インストーラー経由でインストール
 
 :::
 

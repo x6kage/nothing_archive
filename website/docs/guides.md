@@ -713,13 +713,15 @@ Use the **arm64** chroot for the NetHunter rootfs. The [kernel source](https://g
 - Bootloader and partition layout differ from Qualcomm devices — flash `init_boot` (not `boot`) for kernel changes
 - WiFi injection driver patches (e.g., `rtl8812au`) must be cross-compiled against the MTK kernel tree
 
+**Installation image:** Since there is no device-specific build, use **NetHunter Pro Generic arm64** from the [official NetHunter download page](https://www.kali.org/get-kali/#kali-mobile).
+
 **Steps to build a NetHunter Pro kernel:**
 1. Follow the [Rooting guide](#rooting) to set up an unlocked bootloader and root
 2. Clone the [kernel source](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) and set up the MTK build environment
 3. Apply [NetHunter kernel patches](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels) — enable all USB ConfigFS gadget options listed above
 4. Add external WiFi driver modules (e.g., [aircrack-ng/rtl8812au](https://github.com/aircrack-ng/rtl8812au)) to the kernel tree
 5. Refer to Kali's [Porting NetHunter](https://www.kali.org/docs/nethunter/porting-nethunter/) and [kernel builder](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/) documentation
-6. Build, flash the patched `init_boot.img`, and install the NetHunter app + chroot via [nethunter installer](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)
+6. Build, flash the patched `init_boot.img`, and install via the Generic arm64 installer from [nethunter project](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)
 
 :::
 
