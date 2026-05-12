@@ -27,6 +27,10 @@ All Nothing phones are **arm64 (aarch64)**. Use **NetHunter Pro Generic arm64** 
 
 ## Guides
 
+### Start Here
+
+- **[Kernel Build Overview — What You're Actually Doing](guides/kernel-build-overview.md)** — 何が変わって何が変わらないのか、ビルドで詰まるポイントと対処法、復旧方法
+
 ### Kernel Build (per device)
 
 - [Phone (2a) Series — MT6886 / gen4m](guides/phone-2a.md)
