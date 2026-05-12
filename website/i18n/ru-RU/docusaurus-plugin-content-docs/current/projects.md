@@ -155,17 +155,6 @@ keywords: [nothing projects, glyph tools, nothing root, nothing magisk, customiz
 
 ---
 
-## Безопасность и тестирование на проникновение
-
-Проекты, связанные с исследованием безопасности и тестированием на проникновение на устройствах Nothing.
-
-| Проект | Разработчик | Описание |
-|---------|-----------|-------------|
-| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Кастомное ядро для Phone (1) с поддержкой NetHunter, Docker и контейнеров |
-| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Magisk-модуль Kali NetHunter для Phone (1) с USB HID-гаджетом и настройкой chroot |
-
----
-
 ## Модули Root
 
 :::warning

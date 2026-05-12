@@ -682,27 +682,21 @@ C. **再ロック後**
 
 ### Kali NetHunter
 
-[Kali NetHunter](https://www.kali.org/docs/nethunter/)は、Kali Linuxをベースに構築されたAndroid向けペネトレーションテストプラットフォームです。要件の異なる3つのエディションがあります：
-
-| エディション | Root必須 | カスタムカーネル | 主な機能 |
-|---------|:---:|:---:|-------------|
-| NetHunter（フル） | はい | はい | USB HID攻撃、WiFiインジェクション、Bluetoothツール、フルchroot |
-| NetHunter Lite | はい | いいえ | Kali chroot環境、USB機能は限定的 |
-| NetHunter Rootless | いいえ | いいえ | Termux経由のターミナルのみのKali環境 |
+[Kali NetHunter](https://www.kali.org/docs/nethunter/)は、Kali Linuxをベースに構築されたAndroid向けペネトレーションテストプラットフォームです。フルエディション（**NetHunter Pro**）はカスタムカーネルとRoot権限が必要で、USB HID攻撃、WiFiモニターモード/インジェクション、Bluetoothツール、フルKali chroot環境が利用可能になります。
 
 #### デバイスサポート状況
 
-| デバイス | SoC | カーネル | NetHunterフル | 備考 |
+| デバイス | SoC | カーネル | NetHunter Pro | 備考 |
 |--------|-----|--------|:-:|-------|
 | Phone (1) | Snapdragon 778G+ | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magiskモジュール |
 | Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | 未対応 | カーネルソースは公開済み。コミュニティによる移植が必要 |
 | Phone (2a)シリーズ | Dimensity 7200 Pro | 5.15 | 未対応 | カーネルソースは公開済み。以下の注意事項を参照 |
 | Phone (3) | Snapdragon 7s Gen 3 | 6.6 | 未対応 | カーネルソースは公開済み |
 
-:::info Phone (2a) — カーネルビルドの考慮事項
+:::info Phone (2a) — NetHunter Pro用カスタムカーネルビルド
 
 Phone 2a（コードネーム：Pacman）はMediaTek Dimensity 7200 Pro（MT6886）上で**Linux 5.15**カーネルを実行しています。  
-[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)は公開されていますが、NetHunter互換カーネルのビルドにはいくつかの課題があります：
+[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)は公開されていますが、このデバイス向けのNetHunter Proカーネルのビルドは容易ではありません：
 
 **必要なカーネル設定オプション**（`Device Drivers → USB support → USB Gadget Support`配下）：
 - `CONFIG_USB_CONFIGFS_SERIAL`、`CONFIG_USB_CONFIGFS_ACM`、`CONFIG_USB_CONFIGFS_RNDIS`
@@ -710,16 +704,19 @@ Phone 2a（コードネーム：Pacman）はMediaTek Dimensity 7200 Pro（MT6886
 - `CONFIG_USB_CONFIGFS_MASS_STORAGE`、`CONFIG_USB_CONFIGFS_F_HID`
 
 **MediaTek固有の課題：**
-- MediaTekのカーネルビルドツールチェーンはQualcommと異なり、適切なMTKビルド環境のセットアップが必要
-- USB gadget configfsの動作がQualcomm実装と異なる場合がある
-- 内蔵WiFiチップセット（MT7921）はネイティブではモニターモードに対応していない — 対応チップセットを搭載した外付けUSB WiFiアダプター（例：Alfa AWUS036ACH / RTL8812AU）を推奨
+- MediaTekのカーネルビルドツールチェーンはQualcommと大きく異なり、適切なMTKクロスコンパイル環境のセットアップとMTKカーネルツリー構造への理解が必要
+- USB gadget configfsの動作がQualcomm実装と異なる場合がある — HIDガジェットを安定動作させるために追加のデバッグが必要になる可能性が高い
+- 内蔵WiFiチップセット（MT7921）はモニターモードやパケットインジェクションに対応していない — ワイヤレス攻撃には対応チップセットを搭載した外付けUSB WiFiアダプター（例：Alfa AWUS036ACH / RTL8812AU）が必須
 - ブートローダーとパーティションレイアウトがQualcommデバイスと異なる — カーネル変更時は`boot`ではなく`init_boot`をフラッシュ
+- WiFiインジェクションドライバーパッチ（例：`rtl8812au`）はMTKカーネルツリーに対してクロスコンパイルする必要がある
 
-**始め方：**
+**NetHunter Proカーネルのビルド手順：**
 1. [ルート化ガイド](#ルート化)に従って、ブートローダーのアンロックとルート化を設定
-2. Kaliの[NetHunterの移植](https://www.kali.org/docs/nethunter/porting-nethunter/)および[カーネルビルダー](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)のドキュメントを参照
-3. 公式[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)をベースとして使用
-4. **NetHunter Lite**の場合（カスタムカーネル不要）：デバイスをルート化し、NetHunterアプリをインストールしてKali chrootを設定 — USB HID攻撃は使用不可だが、他のほとんどのツールは動作する
+2. [カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)をクローンし、MTKビルド環境を構築
+3. [NetHunterカーネルパッチ](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels)を適用 — 上記のUSB ConfigFSガジェットオプションをすべて有効化
+4. 外付けWiFiドライバーモジュール（例：[aircrack-ng/rtl8812au](https://github.com/aircrack-ng/rtl8812au)）をカーネルツリーに追加
+5. Kaliの[NetHunterの移植](https://www.kali.org/docs/nethunter/porting-nethunter/)および[カーネルビルダー](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/)のドキュメントを参照
+6. ビルド後、パッチ済みの`init_boot.img`をフラッシュし、[NetHunterインストーラー](https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-project)経由でNetHunterアプリ + chrootをインストール
 
 :::
 

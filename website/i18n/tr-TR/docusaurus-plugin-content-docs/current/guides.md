@@ -682,51 +682,6 @@ Cihazınızın SoC üreticisine uygun sürücüleri yükleyin.
 
 :::
 
-### Kali NetHunter
-
-[Kali NetHunter](https://www.kali.org/docs/nethunter/), Kali Linux üzerine inşa edilmiş Android tabanlı bir sızma testi platformudur. Farklı gereksinimlere sahip üç sürümü mevcuttur:
-
-| Sürüm | Root Gerekli | Özel Kernel | Temel Özellikler |
-|---------|:---:|:---:|-------------|
-| NetHunter (Tam) | Evet | Evet | USB HID saldırıları, WiFi enjeksiyonu, Bluetooth araçları, tam chroot |
-| NetHunter Lite | Evet | Hayır | Kali chroot ortamı, sınırlı USB işlevselliği |
-| NetHunter Rootless | Hayır | Hayır | Termux aracılığıyla yalnızca terminal Kali ortamı |
-
-#### Cihaz Destek Durumu
-
-| Cihaz | SoC | Kernel | NetHunter Tam | Notlar |
-|--------|-----|--------|:-:|-------|
-| Phone (1) | Snapdragon 778G+ | 5.4 | Destekleniyor | ExTV'nin [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magisk modülü |
-| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | Mevcut değil | Kernel kaynağı mevcut; topluluk portu gerekli |
-| Phone (2a) Serisi | Dimensity 7200 Pro | 5.15 | Mevcut değil | Kernel kaynağı mevcut; aşağıdaki notlara bakın |
-| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | Mevcut değil | Kernel kaynağı mevcut |
-
-:::info Phone (2a) — Kernel Derleme Hususları
-
-Phone 2a (kod adı: Pacman), MediaTek Dimensity 7200 Pro (MT6886) üzerinde **Linux 5.15** kernel çalıştırmaktadır.  
-[Kernel kaynak kodu](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) herkese açıktır, ancak NetHunter uyumlu bir kernel derlemek çeşitli zorluklar içermektedir:
-
-**Gerekli kernel yapılandırma seçenekleri** (`Device Drivers → USB support → USB Gadget Support` altında):
-- `CONFIG_USB_CONFIGFS_SERIAL`, `CONFIG_USB_CONFIGFS_ACM`, `CONFIG_USB_CONFIGFS_RNDIS`
-- `CONFIG_USB_CONFIGFS_EEM`, `CONFIG_USB_CONFIGFS_ECM`, `CONFIG_USB_CONFIGFS_NCM`
-- `CONFIG_USB_CONFIGFS_MASS_STORAGE`, `CONFIG_USB_CONFIGFS_F_HID`
-
-**MediaTek'e özgü zorluklar:**
-- MediaTek kernel derleme araç zinciri Qualcomm'dan farklıdır; uygun MTK derleme ortamı kurulumu gerektirir
-- USB gadget configfs davranışı Qualcomm uygulamalarından farklılık gösterebilir
-- Dahili WiFi yonga seti (MT7921) doğal olarak monitör modunu desteklemez — desteklenen yonga setine sahip harici USB WiFi adaptörü (örn. Alfa AWUS036ACH / RTL8812AU) önerilir
-- Önyükleyici ve bölüm düzeni Qualcomm cihazlarından farklıdır — kernel değişiklikleri için `boot` yerine `init_boot` flaşlayın
-
-**Başlangıç:**
-1. Kilit açılmış önyükleyici ve root kurulumu için [Root alma kılavuzunu](#root-alma) takip edin
-2. Kali'nin [NetHunter taşıma](https://www.kali.org/docs/nethunter/porting-nethunter/) ve [kernel oluşturucu](https://www.kali.org/docs/nethunter/porting-nethunter-kernel-builder/) belgelerine başvurun
-3. Resmi [kernel kaynak kodunu](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) temel olarak kullanın
-4. **NetHunter Lite** için (özel kernel gerektirmez): cihazı root'layın, NetHunter uygulamasını kurun ve Kali chroot'u yapılandırın — USB HID saldırıları çalışmayacaktır ancak diğer araçların çoğu kullanılabilir
-
-:::
-
----
-
 ### Cihaz Güncelleme Kanalları (Telegram)
 
 **Nothing:**

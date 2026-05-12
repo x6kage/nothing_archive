@@ -155,17 +155,6 @@ Divers projets ludiques et expérimentaux de la communauté.
 
 ---
 
-## Sécurité et Tests d'Intrusion
-
-Projets liés à la recherche en sécurité et aux tests d'intrusion sur les appareils Nothing.
-
-| Projet | Développeur | Description |
-|---------|-----------|-------------|
-| [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) | ExTV | Kernel personnalisé pour Phone (1) avec support NetHunter, Docker et conteneurs |
-| [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) | ExTV | Module Magisk Kali NetHunter pour Phone (1) avec gadget USB HID et configuration chroot |
-
----
-
 ## Modules Root
 
 :::warning
