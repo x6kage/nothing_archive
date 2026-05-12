@@ -686,17 +686,17 @@ C. **再ロック後**
 
 #### デバイスサポート状況
 
-| デバイス | SoC | カーネル | NetHunter Pro | 備考 |
-|--------|-----|--------|:-:|-------|
-| Phone (1) | Snapdragon 778G+ | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magiskモジュール |
-| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | 未対応 | カーネルソースは公開済み。コミュニティによる移植が必要 |
-| Phone (2a)シリーズ | Dimensity 7200 Pro | 5.15 | 未対応 | カーネルソースは公開済み。以下の注意事項を参照 |
-| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | 未対応 | カーネルソースは公開済み |
+| デバイス | SoC | アーキテクチャ | カーネル | NetHunter Pro | 備考 |
+|--------|-----|------|--------|:-:|-------|
+| Phone (1) | Snapdragon 778G+ | arm64 | 5.4 | サポート済み | ExTV氏の[DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magiskモジュール |
+| Phone (2) | Snapdragon 8+ Gen 1 | arm64 | 5.10 | 未対応 | カーネルソースは公開済み。コミュニティによる移植が必要 |
+| Phone (2a)シリーズ | Dimensity 7200 Pro (MT6886) | arm64 (ARMv9) | 5.15 | 未対応 | カーネルソースは公開済み。以下の注意事項を参照 |
+| Phone (3) | Snapdragon 7s Gen 3 | arm64 | 6.6 | 未対応 | カーネルソースは公開済み |
 
 :::info Phone (2a) — NetHunter Pro用カスタムカーネルビルド
 
-Phone 2a（コードネーム：Pacman）はMediaTek Dimensity 7200 Pro（MT6886）上で**Linux 5.15**カーネルを実行しています。  
-[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)は公開されていますが、このデバイス向けのNetHunter Proカーネルのビルドは容易ではありません：
+Phone 2a（コードネーム：Pacman）はMediaTek Dimensity 7200 Pro（MT6886）を搭載 — **arm64 / aarch64（ARMv9.0-A）** アーキテクチャ、2x Cortex-A715 + 6x Cortex-A510コア構成、Linux 5.15カーネル。  
+NetHunter rootfsのchrootには **arm64** を選択すること。[カーネルソース](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886)は公開されていますが、このデバイス向けのNetHunter Proカーネルのビルドは容易ではありません：
 
 **必要なカーネル設定オプション**（`Device Drivers → USB support → USB Gadget Support`配下）：
 - `CONFIG_USB_CONFIGFS_SERIAL`、`CONFIG_USB_CONFIGFS_ACM`、`CONFIG_USB_CONFIGFS_RNDIS`

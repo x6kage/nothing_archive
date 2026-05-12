@@ -689,17 +689,17 @@ Stay updated with custom ROMs, kernels, and development projects.
 
 #### Device Support Status
 
-| Device | SoC | Kernel | NetHunter Pro | Notes |
-|--------|-----|--------|:-:|-------|
-| Phone (1) | Snapdragon 778G+ | 5.4 | Supported | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magisk module by ExTV |
-| Phone (2) | Snapdragon 8+ Gen 1 | 5.10 | Not available | Kernel source available; community port needed |
-| Phone (2a) Series | Dimensity 7200 Pro | 5.15 | Not available | Kernel source available; see notes below |
-| Phone (3) | Snapdragon 7s Gen 3 | 6.6 | Not available | Kernel source available |
+| Device | SoC | Arch | Kernel | NetHunter Pro | Notes |
+|--------|-----|------|--------|:-:|-------|
+| Phone (1) | Snapdragon 778G+ | arm64 | 5.4 | Supported | [DroidSpace Kernel](https://github.com/ExTV/android_kernel_msm-5.4_nothing_sm7325) + [nethunter-spacewar](https://github.com/ExTV/nethunter-spacewar) Magisk module by ExTV |
+| Phone (2) | Snapdragon 8+ Gen 1 | arm64 | 5.10 | Not available | Kernel source available; community port needed |
+| Phone (2a) Series | Dimensity 7200 Pro (MT6886) | arm64 (ARMv9) | 5.15 | Not available | Kernel source available; see notes below |
+| Phone (3) | Snapdragon 7s Gen 3 | arm64 | 6.6 | Not available | Kernel source available |
 
 :::info Phone (2a) — Custom Kernel Build for NetHunter Pro
 
-The Phone 2a (codename: Pacman) runs on MediaTek Dimensity 7200 Pro (MT6886) with a **Linux 5.15** kernel.  
-The [kernel source](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) is publicly available, but building a NetHunter Pro kernel for this device is non-trivial:
+The Phone 2a (codename: Pacman) runs on MediaTek Dimensity 7200 Pro (MT6886) — **arm64 / aarch64 (ARMv9.0-A)** architecture with 2x Cortex-A715 + 6x Cortex-A510 cores, Linux 5.15 kernel.  
+Use the **arm64** chroot for the NetHunter rootfs. The [kernel source](https://github.com/NothingOSS/android_kernel_5.15_nothing_mt6886) is publicly available, but building a NetHunter Pro kernel for this device is non-trivial:
 
 **Required kernel config options** (under `Device Drivers → USB support → USB Gadget Support`):
 - `CONFIG_USB_CONFIGFS_SERIAL`, `CONFIG_USB_CONFIGFS_ACM`, `CONFIG_USB_CONFIGFS_RNDIS`
